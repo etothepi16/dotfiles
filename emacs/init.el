@@ -26,35 +26,9 @@
 
 (use-package swiper)
 
-(use-package ivy
-  :diminish
-  :bind (("C-s" . swiper)
-	 :map ivy-minibuffer-map
-	 ("TAB" . ivy-alt-done)
-	 ("C-l" . ivy-alt-done)
-	 ("C-j" . ivy-next-line)
- 	 ("C-k" . ivy-previous-line)
-	 :map ivy-switch-buffer-map
-	 ("C-k" . ivy-previous-line)
-	 ("C-l" . ivy-done)
-	 ("C-d" . ivy-switch-buffer-kill)
-	 :map ivy-reverse-i-search-map
-	 ("C-k" . ivy-previous-line)
-	 ("C-d" . ivy-reverse-i-search-kill))
-  :config
-  (ivy-mode 1)
-  (setq ivy-truncate-lines nil))
+(icomplete-mode 1)
 
-(use-package counsel
-  :bind (("M-x" . counsel-M-x)
-	 ("C-x b" . counsel-ibuffer)
-	 ("C-x C-f" . counsel-find-file)
-   	 :map minibuffer-local-map
-	 ("C-r" . 'counsel-minibuffer-history))
-  :config
-  (setq ivy-initial-inputs-alist nil)) ; don't start searches with ^
 
-(global-set-key (kbd "C-M-j") 'counsel-switch-buffer)
 
 ;; NOTE: might need to run M-x all-the-icons-install-fonts
 ;; the first time config is loaded on a new machine
@@ -126,6 +100,25 @@
 (use-package forge)
 (setq auth-sources '("~/.authinfo"))
 
+;; org mode
+(defun pm/org-mode-setup ()
+  (org-indent-mode)
+  (variable-pitch-mode 1)
+  (auto-fill-mode 0)
+  (visual-line-mode 1))
+
+(use-package org
+;;  :hook (org-mode . pm/org-mode-setup)
+  :config
+  (setq org-ellipsis " ▾"
+	org-hide-emphasis-markers t))
+
+(use-package org-bullets
+  :after org
+  :hook (org-mode . org-bullets-mode)
+  :custom
+  (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+
 ;; put custom-set-variables and custom-set-faces in their own file
 (setq custom-file "~/.config/emacs/custom.el")
-(load custom-file 'noerror)
+(load custom-file)
