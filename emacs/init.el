@@ -3,32 +3,83 @@
 ;; but I have changed some things to suit myself.
 ;; Other configuration is present in early-init.el
 
-(set-face-attribute 'default nil :font "FiraCode Nerd Font" :height 120)
+(set-face-attribute 'default nil :font "FiraCode Nerd Font Mono" :height 120)
+
+(set-face-attribute 'fixed-pitch nil :font "FiraCode Nerd Font Mono" :height 120)
+
+(set-face-attribute 'variable-pitch nil :font "Cantarell" :height 120 :weight 'regular)
+
 (use-package ligature
   :config
   (ligature-set-ligatures '(prog-mode html-mode) '("www" "**" "***" "**/" "*>" "*/" "{-" "::"
-				       ":::" ":=" "!!" "!=" "!==" "-}" "----" "-->" "->" "->>"
-				       "-<" "-<<" "-~" "#{" "#[" "##" "###" "####" "#(" "#?" "#_"
-				       "#_(" ".-" ".=" ".." "..<" "..." "?=" "??" ";;" "/*" "/**"
-				       "/=" "/==" "/>" "//" "///"  "&&" "||" "||=" "|=" "|>" "^=" "$>"
-				       "++" "+++" "+>" "=:=" "==" "===" "==>" "=>" "=>>" "<="
-				       "=<<" "=/=" ">-" ">=" ">=>" ">>" ">>-" ">>=" ">>>" "<*"
-				       "<*>" "<|" "<|>" "<$" "<$>" "<!--" "<-" "<--" "<->" "<+"
-				       "<+>" "<=" "<==" "<=>" "<=<" "<>" "<<" "<<-" "<<=" "<<<"
-				       "<~" "<~~" "</" "</>" "~@" "~-" "~>" "~~" "~~>" "%%" "__" ))
+						   ":::" ":=" "!!" "!=" "!==" "-}" "----" "-->" "->" "->>"
+						   "-<" "-<<" "-~" "#{" "#[" "##" "###" "####" "#(" "#?" "#_"
+						   "#_(" ".-" ".=" ".." "..<" "..." "?=" "??" ";;" "/*" "/**"
+						   "/=" "/==" "/>" "//" "///"  "&&" "||" "||=" "|=" "|>" "^=" "$>"
+						   "++" "+++" "+>" "=:=" "==" "===" "==>" "=>" "=>>" "<="
+						   "=<<" "=/=" ">-" ">=" ">=>" ">>" ">>-" ">>=" ">>>" "<*"
+						   "<*>" "<|" "<|>" "<$" "<$>" "<!--" "<-" "<--" "<->" "<+"
+						   "<+>" "<=" "<==" "<=>" "<=<" "<>" "<<" "<<-" "<<=" "<<<"
+						   "<~" "<~~" "</" "</>" "~@" "~-" "~>" "~~" "~~>" "%%" "__" ))
   (global-ligature-mode 't))
 
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+
+;; warnings and errors
+(setq warning-minimum-level :error)
+(setq warning-minimum-log-level :warning)
 
 ;; line and column numbers
 (column-number-mode 1)
 (add-hook 'prog-mode-hook #'display-line-numbers-mode 1)
 
+;; terminal stuff
+(use-package term
+  :config
+  (setq explicit-shell-file-name "bash")
+  (setq term-prompt-regexp "^[^#$%>\n]*[#$%>] *"))
+
+(use-package eterm-256color
+  :hook (term-mode . eterm-256color-mode))
+
+(use-package vterm
+  :commands vterm
+  :config
+  (setq vterm-prompt-regexp "^[^#$%>\n]*[#$%>] *")
+  (setq vterm-max-scrollback 10000))
+
+;; minibuffer
 (use-package swiper)
 
-(icomplete-mode 1)
+(use-package ivy
+  :diminish
+  :bind (("C-s" . swiper)
+	 :map ivy-minibuffer-map
+	 ("TAB" . ivy-alt-done)
+	 ("C-l" . ivy-alt-done)
+	 ("C-j" . ivy-next-line)
+ 	 ("C-k" . ivy-previous-line)
+	 :map ivy-switch-buffer-map
+	 ("C-k" . ivy-previous-line)
+	 ("C-l" . ivy-done)
+	 ("C-d" . ivy-switch-buffer-kill)
+	 :map ivy-reverse-i-search-map
+	 ("C-k" . ivy-previous-line)
+	 ("C-d" . ivy-reverse-i-search-kill))
+  :config
+  (ivy-mode 1)
+  (setq ivy-truncate-lines nil))
 
+(use-package counsel
+  :bind (("M-x" . counsel-M-x)
+	 ("C-x b" . counsel-ibuffer)
+	 ("C-x C-f" . counsel-find-file)
+   	 :map minibuffer-local-map
+	 ("C-r" . 'counsel-minibuffer-history))
+  :config
+  (setq ivy-initial-inputs-alist nil)) ; don't start searches with ^
 
+(global-set-key (kbd "C-M-j") 'counsel-switch-buffer)
 
 ;; NOTE: might need to run M-x all-the-icons-install-fonts
 ;; the first time config is loaded on a new machine
@@ -46,6 +97,11 @@
   :diminish which-key-mode
   :config
   (setq which-key-idle-delay 0.3))
+
+(use-package all-the-icons-ivy-rich
+  :ensure t
+  :init
+  (all-the-icons-ivy-rich-mode 1))
 
 (use-package ivy-rich
   :init
@@ -65,16 +121,16 @@
   :config
   (general-auto-unbind-keys)
   (general-create-definer pm/leader-keys
-			  :keymaps 'override
-			  :prefix "C-SPC"
-			  :global-prefix "C-SPC"))
+    :keymaps 'override
+    :prefix "C-SPC"
+    :global-prefix "C-SPC"))
 
 (use-package hydra)
 (defhydra hydra-text-scale (:timeout 4)
-	  "scale text"
-	  ("j" text-scale-increase "in")
-	  ("k" text-scale-decrease "out")
-	  ("f" nil "finished" :exit t))
+  "scale text"
+  ("j" text-scale-increase "in")
+  ("k" text-scale-decrease "out")
+  ("f" nil "finished" :exit t))
 
 (pm/leader-keys
   "ts" '(hydra-text-scale/body :which-key "scale text"))
@@ -108,7 +164,7 @@
   (visual-line-mode 1))
 
 (use-package org
-;;  :hook (org-mode . pm/org-mode-setup)
+  :hook (org-mode . pm/org-mode-setup)
   :config
   (setq org-ellipsis " ▾"
 	org-hide-emphasis-markers t))
@@ -118,6 +174,94 @@
   :hook (org-mode . org-bullets-mode)
   :custom
   (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+
+(font-lock-add-keywords 'org-mode
+			'(("^ *\\([-]\\) "
+			   (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+
+(require 'org-indent)
+ 
+(with-eval-after-load 'org-faces
+  (dolist (face '((org-level-1 . 1.2)
+		  (org-level-2 . 1.1)
+		  (org-level-3 . 1.05)
+		  (org-level-4 . 1.0)
+		  (org-level-5 . 1.1)
+		  (org-level-6 . 1.1)
+		  (org-level-7 . 1.1)
+		  (org-level-8 . 1.1)))
+    (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
+
+  (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-table nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-formula nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-code nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-indent nil :inherit '(org-hide fixed-pitch))
+  (set-face-attribute 'org-verbatim nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-meta-line nil :inherit '(font-lock comment-face fixed-pitch))
+  (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch)
+  (set-face-attribute 'line-number nil :inherit 'fixed-pitch)
+  (set-face-attribute 'line-number-current-line nil :inherit 'fixed-pitch))
+
+(defun pm/org-mode-visual-fill ()
+  (setq visual-fill-column-width 100
+	visual-fill-column-center-text t)
+  (visual-fill-column-mode 1))
+
+(use-package visual-fill-column
+  :defer t
+  :hook (org-mode . pm/org-mode-visual-fill))
+
+(defun pm/lsp-mode-setup ()
+  (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+  (lsp-headerline-breadcrumb-mode))
+
+(use-package lsp-mode
+  :commands (lsp lsp-deferred)
+  :hook (lsp-mode . pm/lsp-mode-setup)
+  :init
+  (setq lsp-keymap-prefix "C-c l")
+  :config
+  (lsp-enable-which-key-integration t))
+(define-key lsp-mode-map (kbd "C-c l") lsp-command-map)
+
+(use-package lsp-ui
+  :hook (lsp-mode . lsp-ui-mode)
+  :custom
+  (lsp-ui-doc-position 'bottom))
+
+(use-package lsp-treemacs
+  :after lsp)
+
+(use-package lsp-ivy)
+
+(use-package typescript-mode
+  :mode "\\.ts\\'"
+  :hook (typescript-mode . lsp-deferred)
+  :config
+  (setq typescript-indent-level 2))
+
+(use-package ccls
+  :hook ((c-mode c++-mode objc-mode cuda-mode) .
+         (lambda () (require 'ccls) (lsp))))
+
+(use-package company
+  :after lsp-mode
+  :hook (lsp-mode . company-mode)
+  :bind (:map company-active-map
+         ("<tab>" . company-complete-selection))
+        (:map lsp-mode-map
+         ("<tab>" . company-indent-or-complete-common))
+  :custom
+  (company-minimum-prefix-length 1)
+  (company-idle-delay 0.0))
+
+(use-package company-box
+  :hook (company-mode . company-box-mode))
+
+(require 'yasnippet)
+(yas-global-mode 1)
 
 ;; put custom-set-variables and custom-set-faces in their own file
 (setq custom-file "~/.config/emacs/custom.el")

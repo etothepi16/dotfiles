@@ -23,3 +23,11 @@ systemd/
 tiling-assistant/
 user-dirs.*
 .gsd-keyboard.settings-ported
+*~
+\#*\#
+.\#*
+tramp
+.cache/
+.lsp-session-*
+.dap-*
+tree-sitter
